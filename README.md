@@ -1,7 +1,7 @@
 RelayPoint gateway for Chrono Relais
 ======
 
-Chrono Relais Relay point search
+Chrono Relais (Chronopost) Relay point search
 
 [![Latest Version](https://img.shields.io/github/release/pfeyssaguet/relaypoint-chronorelais.svg?style=flat-square)](https://github.com/pfeyssaguet/relaypoint-chronorelais/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)

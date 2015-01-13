@@ -57,7 +57,7 @@ class Gateway extends AbstractGateway
 
         $result = $soapClient->__soapCall(self::SERVICE_SEARCH, array($args));
 
-        var_dump($result);
+        //var_dump($result);
         $list = array();
 
         foreach ($result->return as $relayPoint)
@@ -71,7 +71,7 @@ class Gateway extends AbstractGateway
     }
 
     /**
-     * Returns the details of one Kiala relay point.
+     * Returns the details of one Chronorelais relay point.
      *
      * @param array $parameters Search fields
      * @return Address|null

@@ -28,14 +28,14 @@ class Gateway extends AbstractGateway
         $this->soapClient = new \SoapClient(self::URL);
     }
 
-    public function setSoapClient($soapClient)
+    /**
+     * Defines the SoapClient class which must be used.
+     *
+     * @param \SoapClient $soapClient SoapClient instance
+     */
+    public function setSoapClient(\SoapClient $soapClient)
     {
         $this->soapClient = $soapClient;
-    }
-
-    public function getSoapClient()
-    {
-        return $this->soapClient;
     }
 
     public function getName()

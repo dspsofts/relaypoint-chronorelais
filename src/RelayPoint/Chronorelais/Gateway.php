@@ -20,6 +20,24 @@ class Gateway extends AbstractGateway
     const SERVICE_SEARCH = 'rechercheBtParCodeproduitEtCodepostalEtDate';
     const SERVICE_DETAIL = 'rechercheBtParIdChronopostA2Pas';
 
+    protected $soapClient;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->soapClient = new \SoapClient(self::URL);
+    }
+
+    public function setSoapClient($soapClient)
+    {
+        $this->soapClient = $soapClient;
+    }
+
+    public function getSoapClient()
+    {
+        return $this->soapClient;
+    }
+
     public function getName()
     {
         return 'Chronorelais';
@@ -44,8 +62,6 @@ class Gateway extends AbstractGateway
     {
         $fields = array_replace($this->getParameters(), $parameters);
 
-        $soapClient = new \SoapClient(self::URL, array('trace' => true));
-
         if (ini_get('date.timezone') == '') {
             date_default_timezone_set('Europe/Paris');
         }
@@ -55,13 +71,11 @@ class Gateway extends AbstractGateway
             'date' => date('d/m/Y'),
         );
 
-        $result = $soapClient->__soapCall(self::SERVICE_SEARCH, array($args));
+        $result = $this->soapClient->rechercheBtParCodeproduitEtCodepostalEtDate($args);
 
-        //var_dump($result);
         $list = array();
 
-        foreach ($result->return as $relayPoint)
-        {
+        foreach ($result->return as $relayPoint) {
             $address = $this->parseRelayPoint($relayPoint);
 
             $list[] = $address;
@@ -81,13 +95,11 @@ class Gateway extends AbstractGateway
     {
         $fields = array_replace($this->getParameters(), $parameters);
 
-        $soapClient = new \SoapClient(self::URL);
-
         $args = array(
             'id' => $fields['code'],
         );
 
-        $result = $soapClient->__soapCall(self::SERVICE_DETAIL, array($args));
+        $result = $this->soapClient->rechercheBtParIdChronopostA2Pas($args);
 
         return $this->parseRelayPoint($result->return);
     }
@@ -103,39 +115,38 @@ class Gateway extends AbstractGateway
         $days = array('Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche');
         $openingHours = array();
 
-        foreach ($days as $day)
-        {
-            if ($relayPoint->{'horairesOuverture'.$day} != '00:00-00:00 00:00-00:00')
-            {
+        foreach ($days as $day) {
+            if ($relayPoint->{'horairesOuverture'.$day} != '00:00-00:00 00:00-00:00') {
                 $openingHours[$day] = str_replace('-', ' - ', $relayPoint->{'horairesOuverture'.$day});
-            }
-            else
-            {
+            } else {
                 $openingHours[$day] = 'Fermé';
             }
         }
 
         // Horrible fix for the "D quote" which could create big problems...
-        $adresse1 = $relayPoint->adresse1;
+        $adresse1 = strval($relayPoint->adresse1);
         if (strpos($adresse1, ' D ')) {
             $adresse1 = str_replace(' D ', " D'", $adresse1);
+        }
+        $locationHint = '';
+        if (isset($relayPoint->adresse2)) {
+            $locationHint = strval($relayPoint->adresse2);
         }
 
         $fields = array(
             'code' => strval($relayPoint->identifiantChronopostPointA2PAS),
             'name' => strval($relayPoint->nomEnseigne),
-            'street' => strval($adresse1),
+            'street' => $adresse1,
             'zip' => strval($relayPoint->codePostal),
             'city' => strval($relayPoint->localite),
-            'locationHint' => strval($relayPoint->addresse2),
+            'locationHint' => $locationHint,
             'latitude' => strval($relayPoint->coordGeoLatitude),
             'longitude' => strval($relayPoint->coordGeoLongitude),
             'active' => true,
         );
         $address = new Address($fields);
 
-        foreach ($openingHours as $day => $hours)
-        {
+        foreach ($openingHours as $day => $hours) {
             $address->addOpeningHour($day, $hours);
         }
 

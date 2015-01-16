@@ -10,9 +10,9 @@
         }
     ],
 	"autoload": {
-		"psr-0": {
-			"RelayPoint\\Chronorelais" : "src/",
-			"RelayPoint\\Chronorelais\\Tests" : "tests/"
+		"psr-4": {
+			"RelayPoint\\Chronorelais\\" : "src/",
+			"RelayPoint\\Chronorelais\\Tests\\" : "tests/"
 		}
 	},
 	"repositories": [
